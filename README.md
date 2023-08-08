@@ -26,7 +26,7 @@ Pricing oracles can optionally implement cross-pricing logic. This allows a user
 
 As a hypothetical example, if a user requests a price for `DAI/EUR`, the price oracle could retrieve pricing for `DAI/USDC` from a Uniswap TWAP, and then another price for the `USDC/USD` from an internal pegged price, and then finally another price for `EUR/USD` from Chainlink. The price oracle essentially multiplies these prices together, inverting when necessary.
 
-In a trivial case, oracles should support inverting prices, so that if `EUR/USD` is supported, so should `USD/EUR`. Note that when inverting, [bid and ask](#spreads) values should be swapped. In more complicated crosses, care should be taken to use the correct bid or ask value at each leg of the cross.
+Oracles should support inverting pairs, so that if `EUR/USD` is supported, then `USD/EUR` should also be supported. Note that when inverting, [bid and ask](#spreads) values should be swapped. In more complicated crosses, care should be taken to use the correct bid or ask value at each leg of the cross.
 
 
 ## Amounts
@@ -42,7 +42,7 @@ Consider the case where a user requests a quote for a pair such as SHIB/USDC. Th
 
 If, without precision loss, the price for SHIB/USDC should be `0.000008936`, then converting 1 unit of SHIB into USDC would yield `0.000008` (rounding down) or `0.000009` (rounding up). If this conversion was used as a price, then it would be significantly incorrect and furthermore would not reflect many dramatic price changes.
 
-To solve this, a larger amount of USDC should be converted. For example, if using the one-sided pricing methods, `1e12` SHIB may be requested with the `in` parameter, which will effectively treat USDC as an 18 decimal place token.
+To solve this, a larger amount of the base asset should be converted. For example, if using the one-sided pricing methods, `1e12` SHIB may be requested with the `in` parameter, which will effectively treat USDC as an 18 decimal place token.
 
 If using two-sided pricing methods, in many cases there will be known amount (ie, the size of a user's collateral or liability), and this amount can be used directly as `in` to leverage the price oracle's [rounding](#rounding) and [spread](#spreads) behaviours.
 
@@ -50,23 +50,23 @@ If using two-sided pricing methods, in many cases there will be known amount (ie
 
 For prices to make sense logically, there normally needs to be two values: a bid and an ask. The bid is always lower than the ask. If these two values were equivalent, then trading activity would occur until a [market clearing](https://en.wikipedia.org/wiki/Market_clearing) condition is reached, leaving a non-zero gap between the bid and ask.
 
-The `getPrices` and `getTicks` support returning both bid and ask values, which is referred to as a two-sided price. The meaning of the gap between these two values is defined by the oracle implementation, and could be a combination of any of the following:
+The `getPrices` and `getTicks` support returning separate bid and ask values, which is referred to as a two-sided price. The meaning of the gap between these two values is defined by the oracle implementation, and could be a combination of any of the following:
 
 * Actual market price quotes (ideally averaged over time using TWAPs etc)
 * Confidence level estimations of pricing sources
 * Difference between mean and median
 * Simply hard-coded to 0
 
-The last case, indicates that an oracle can simply ignore bid-ask spreads and assume the spread is 0 for the purposes of pricing.
+In the last case, the oracle is simply ignoring bid-ask spreads and assuming the spread is 0 for the purposes of pricing.
 
-The `getPrice` and `getTick` methods return single values. For oracles that ignore bid-ask spreads, the bid and ask values can just be copies of what is returned from these single value-returning methods.
+For oracles that ignore bid-ask spreads, the bid and ask values can just be copies of what is returned from the `getPrice` and `getTick` methodss.
 
 For oracles that *do* implement bid-ask spreads, the single value-returning methods should be derived from the bid-ask values by taking their *mid-point*. This is simply an average between the bid and ask values. If possible, this should be a geometric average of the underlying prices. However, in most cases taking an arithmetic average between the two output amounts will be acceptably accurate.
 
 
 ### Rounding
 
-When implementing two-sided prices, the price oracle should ensure that amounts are rounded away from the [mid-point](#spreads). In other words, bid amounts should be rounded down, and ask amounts rounded up. This pessimises the value that would be received through a conversion, and can be relied upon by oracle users.
+When implementing two-sided prices, the price oracle must ensure that amounts are rounded away from the [mid-point](#spreads). In other words, bid amounts are be rounded down, and ask amounts rounded up. This pessimises the value that would be received through a conversion, and can be relied upon by oracle users.
 
 
 
@@ -75,11 +75,11 @@ When implementing two-sided prices, the price oracle should ensure that amounts 
 
 Instead of returning an output amount, the `getTick` and `getTicks` methods return Uniswap-format tick values.
 
-These are log-space, quantised price-ratios between the two assets in the pair, with a quantisation interval of `0.1%` ([examples](https://github.com/euler-xyz/liboracle)).
+These are log-space, quantised price-ratios between the two assets in the pair, with a quantisation interval of `0.01%` ([examples](https://github.com/euler-xyz/liboracle)).
 
-Many oracle implementations will ultimately be tracking ticks underneath, so querying for ticks will be more efficient than getting full amounts quoted, as long as the oracle user is prepared to deal with ticks.
+Many oracle implementations will ultimately be tracking ticks underneath, so querying for ticks may be more efficient than getting full amounts quoted, as long as the user is prepared to deal with ticks.
 
-Ticks have the advantage of avoiding catastrophic precision loss as in our previous [SHIB/USDC example](#precision-loss). This is why the `getTick` method does not take an `in` parameter.
+Ticks have the advantage of avoiding (or, rather, deferring) catastrophic precision loss as in our previous [SHIB/USDC example](#precision-loss). This is why the `getTick` method does not take an `in` parameter.
 
 The `getTicks` method does still take an `in` parameter, because some oracle designs may choose to widen the [bid-ask spread](#spreads) if larger amounts are requested.
 
