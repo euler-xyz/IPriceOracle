@@ -112,4 +112,6 @@ The correct geometric [mid-point](#spreads) can be computed by simply computing 
         address internal constant PO_AUD = address(36);
         address internal constant PO_NZD = address(554);
         address internal constant PO_CNY = address(156);
+        address internal constant PO_XAU = address(959);
+        address internal constant PO_XAG = address(961);
     }
