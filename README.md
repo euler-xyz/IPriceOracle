@@ -44,7 +44,7 @@ If, without precision loss, the price for SHIB/USDC should be `0.000008936`, the
 
 To solve this, a larger amount of the base asset should be converted. For example, if using the one-sided pricing methods, `1e12` SHIB may be requested with the `in` parameter, which will effectively treat USDC as an 18 decimal place token.
 
-If using two-sided pricing methods, in many cases there will be known amount (ie, the size of a user's collateral or liability), and this amount can be used directly as `in` to leverage the price oracle's [rounding](#rounding) and [spread](#spreads) behaviours.
+If using two-sided pricing methods, in many cases there will be a known amount (ie, the size of a user's collateral or liability), and this amount can be used directly as `in` to leverage the price oracle's [rounding](#rounding) and [spread](#spreads) behaviours.
 
 ### Spreads
 
