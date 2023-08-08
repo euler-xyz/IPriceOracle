@@ -50,7 +50,7 @@ If using two-sided pricing methods, in many cases there will be known amount (ie
 
 For prices to make sense logically, there normally needs to be two values: a bid and an ask. The bid is always lower than the ask. If these two values were equivalent, then trading activity would occur until a [market clearing](https://en.wikipedia.org/wiki/Market_clearing) condition is reached, leaving a non-zero gap between the bid and ask.
 
-The `getPrices` and `getTicks` support returning separate bid and ask values, which is referred to as a two-sided price. The meaning of the gap between these two values is defined by the oracle implementation, and could be a combination of any of the following:
+The `getQuotes` and `getTicks` support returning separate bid and ask values, which is referred to as a two-sided price. The meaning of the gap between these two values is defined by the oracle implementation, and could be a combination of any of the following:
 
 * Actual market price quotes (ideally averaged over time using TWAPs etc)
 * Confidence level estimations of pricing sources
@@ -59,7 +59,7 @@ The `getPrices` and `getTicks` support returning separate bid and ask values, wh
 
 In the last case, the oracle is simply ignoring bid-ask spreads and assuming the spread is 0 for the purposes of pricing.
 
-For oracles that ignore bid-ask spreads, the bid and ask values can just be copies of what is returned from the `getPrice` and `getTick` methodss.
+For oracles that ignore bid-ask spreads, the bid and ask values can just be copies of what is returned from the `getQuote` and `getTick` methodss.
 
 For oracles that *do* implement bid-ask spreads, the single value-returning methods should be derived from the bid-ask values by taking their *mid-point*. This is simply an average between the bid and ask values. If possible, this should be a geometric average of the underlying prices. However, in most cases taking an arithmetic average between the two output amounts will be acceptably accurate.
 
