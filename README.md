@@ -79,9 +79,9 @@ These are log-space, quantised price-ratios between the two assets in the pair, 
 
 Many oracle implementations will ultimately be tracking ticks underneath, so querying for ticks may be more efficient than getting full amounts quoted, as long as the user is prepared to deal with ticks.
 
-Ticks have the advantage of avoiding (or, rather, deferring) catastrophic precision loss as in our previous [SHIB/USDC example](#precision-loss). This is why the `getTick` method does not take an `in` parameter.
+Ticks have the advantage of avoiding (or, rather, deferring) catastrophic precision loss as in our previous [SHIB/USDC example](#precision-loss). Because of this, the `in` parameter of `getTick` will typically be ignored by the oracle.
 
-The `getTicks` method does still take an `in` parameter, because some oracle designs may choose to widen the [bid-ask spread](#spreads) if larger amounts are requested.
+However, the `getTicks` method's `in` parameter is still useful because certain oracle designs may choose to widen the [bid-ask spread](#spreads) as larger amounts are requested.
 
 The correct geometric [mid-point](#spreads) can be computed by simply computing the arithmetic mid-point of the ticks.
 
@@ -95,7 +95,7 @@ The correct geometric [mid-point](#spreads) can be computed by simply computing 
         function getQuote(uint in, address base, address quote) external view returns (uint out);
         function getQuotes(uint in, address base, address quote) external view returns (uint bidOut, uint askOut);
 
-        function getTick(address base, address quote) external view returns (uint tick);
+        function getTick(uint in, address base, address quote) external view returns (uint tick);
         function getTicks(uint in, address base, address quote) external view returns (uint bidTick, uint askTick);
 
         error PO_BaseUnsupported();
