@@ -88,30 +88,28 @@ The correct geometric [mid-point](#spreads) can be computed by simply computing 
 
 
 ## Interface
+```solidity
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.0;
 
-    interface IPriceOracle {
-        function name() external view returns (string memory);
+interface IPriceOracle {
+    error PO_BaseUnsupported();
+    error PO_QuoteUnsupported();
+    error PO_Overflow();
+    error PO_NoPath();
 
-        function getQuote(uint in, address base, address quote) external view returns (uint out);
-        function getQuotes(uint in, address base, address quote) external view returns (uint bidOut, uint askOut);
+    function name() external view returns (string memory);
 
-        function getTick(uint in, address base, address quote) external view returns (uint tick);
-        function getTicks(uint in, address base, address quote) external view returns (uint bidTick, uint askTick);
+    function getQuote(uint256 inAmount, address base, address quote) external view returns (uint256 out);
+    function getQuotes(uint256 inAmount, address base, address quote)
+        external
+        view
+        returns (uint256 bidOut, uint256 askOut);
 
-        error PO_BaseUnsupported();
-        error PO_QuoteUnsupported();
-        error PO_Overflow();
-        error PO_NoPath();
-
-        address internal constant PO_USD = address(840);
-        address internal constant PO_EUR = address(978);
-        address internal constant PO_JPY = address(392);
-        address internal constant PO_GBP = address(826);
-        address internal constant PO_CHF = address(756);
-        address internal constant PO_CAD = address(124);
-        address internal constant PO_AUD = address(36);
-        address internal constant PO_NZD = address(554);
-        address internal constant PO_CNY = address(156);
-        address internal constant PO_XAU = address(959);
-        address internal constant PO_XAG = address(961);
-    }
+    function getTick(uint256 inAmount, address base, address quote) external view returns (uint256 tick);
+    function getTicks(uint256 inAmount, address base, address quote)
+        external
+        view
+        returns (uint256 bidTick, uint256 askTick);
+}
+```
