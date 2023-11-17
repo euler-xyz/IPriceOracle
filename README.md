@@ -17,7 +17,7 @@ In the `IPriceOracle` methods, token addresses for both `base` and `quote` shoul
 
 Users can request prices based on fiat currencies instead of token addresses by casting numeric [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency codes into addresses. For example, USD has the ISO 4217 code of 840, so `address(840)` which corresponds to `0x0000000000000000000000000000000000000348` can be used instead.
 
-For pricing purposes, values denominated in these special fiat addresses are assumed to have a decimals value of 18.
+For pricing purposes, values denominated in these special fiat addresses are assumed to have 18 decimals.
 
 
 ## Crosses
@@ -31,7 +31,7 @@ Oracles should support inverting pairs, so that if `EUR/USD` is supported, then 
 
 ## Amounts
 
-The `getQuote` and `getQuotes` methods take an `in` parameter. This has two purposes:
+The `getQuote` and `getQuotes` methods take an `inAmount` parameter. This has two purposes:
 
 * Reduces the impact of [precision loss](#precision-loss)
 * Optionally allows a price oracle to widen the spread between bid and ask values as successively larger amounts are requested
@@ -42,9 +42,9 @@ Consider the case where a user requests a quote for a pair such as SHIB/USDC. Th
 
 If, without precision loss, the price for SHIB/USDC should be `0.000008936`, then converting 1 unit of SHIB into USDC would yield `0.000008` (rounding down) or `0.000009` (rounding up). If this conversion was used as a price, then it would be significantly incorrect and furthermore would not reflect many dramatic price changes.
 
-To solve this, a larger amount of the base asset should be converted. For example, if using the one-sided pricing methods, `1e12` SHIB may be requested with the `in` parameter, which will effectively treat USDC as an 18 decimal place token.
+To solve this, a larger amount of the base asset should be converted. For example, if using the one-sided pricing methods, `1e12` SHIB may be requested with the `inAmount` parameter, which will effectively treat USDC as an 18 decimal place token.
 
-If using two-sided pricing methods, in many cases there will be a known amount (ie, the size of a user's collateral or liability), and this amount can be used directly as `in` to leverage the price oracle's [rounding](#rounding) and [spread](#spreads) behaviours.
+If using two-sided pricing methods, in many cases there will be a known amount (ie, the size of a user's collateral or liability), and this amount can be used directly as `inAmount` to leverage the price oracle's [rounding](#rounding) and [spread](#spreads) behaviours.
 
 ### Spreads
 
